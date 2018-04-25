@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/y1n/Loggobot/issues"
   },
-  "homepage": "https://github.com/y1n/Loggobot#readme"
+  "homepage": "https://github.com/y1n/Loggobot#readme",
+  "dependencies": {
+    "discord.js": "^11.3.2"
+  }
 }
