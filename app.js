@@ -25,7 +25,7 @@ client.on('ready', () => {
             id: c.id,
             permissionOverwrites: c.permissionOverwrites.map(o => ({
                 id: o.id,
-                type: o.type,
+                //type: o.type,
                 deny: o.deny,
                 allow: o.allow,
             })),
@@ -36,16 +36,66 @@ client.on('ready', () => {
             return a.position - b.position
         })
 
-    const roles = onion.roles.map(r => ({name: r.name, id: r.id, permissions: r.permissions, position: r.position, color: r.color})).sort((a, b) => {
-        return a.position - b.position
-    })
+    const roles = onion.roles
+        .map(r => ({
+            name: r.name,
+            id: r.id,
+            permissions: r.permissions,
+            position: r.position,
+            color: r.color,
+            mentionable: r.mentionable,
+        }))
+        .sort((a, b) => {
+            return a.position - b.position
+        })
 
     let members
     onion.fetchMembers().then(() => {
-        members = onion.members.map(m => ({id: m.id, roles: m.roles.map(r => r.id)}))
+        members = onion.members.map(m => ({
+            id: m.id,
+            roles: m.roles.map(r => r.id),
+        }))
         storage = {members: members, roles: roles, channels: channels}
         fs.writeFile('storage.json', JSON.stringify(storage, null, 2), () => {})
     })
+})
+
+client.on('message', message => {
+    if (message.author.id == config.author && message.content === 'build') {
+        const newOnion = client.guilds.get('439111833828458496')
+        const generalText = newOnion.channels.find('name', 'general')
+        if (generalText) generalText.delete()
+        const textCategory = newOnion.channels.find('name', 'Text Channels')
+        if (textCategory) textCategory.delete()
+
+        const generalVoice = newOnion.channels.find('name', 'General')
+        if (generalVoice) generalVoice.delete()
+        const voiceCategory = newOnion.channels.find('name', 'Voice Channels')
+        if (voiceCategory) voiceCategory.delete()
+
+        /*
+        for (i = 0; i < storage.roles.length; i++) {
+            let role = storage.roles[i]
+            newOnion.createRole({
+                name: role.name,
+                color: role.color,
+                position: role.position,
+                permissions: role.permissions,
+                mentionable: role.mentionable,
+            })
+        }
+        */
+
+        for (i = 0; i < storage.channels.length; i++) {
+            let channel = storage.channels[i]
+            console.log(channel.name)
+            newOnion.createChannel({
+                name: channel.name,
+                type: channel.type,
+                //overwrites: channel.permissionOverwrites,
+            })
+        }
+    }
 })
 
 client.login(config.token)
